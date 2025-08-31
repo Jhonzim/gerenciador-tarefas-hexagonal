@@ -1,6 +1,7 @@
+import { StatusTarefa } from '../valores/StatusTarefa';
+import { PrioridadeTarefa } from '../valores/PrioridadeTarefa';
+
 export type TarefaId = number;
-export type StatusTarefa = 'pendente' | 'em_andamento' | 'concluida';
-export type PrioridadeTarefa = 'baixa' | 'media' | 'alta';
 
 export interface TarefaProps {
   id?: TarefaId;

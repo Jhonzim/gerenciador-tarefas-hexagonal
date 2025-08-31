@@ -237,3 +237,184 @@ frontend/
 ## 17. Conclusão
 
 Núcleo desacoplado, CRUD funcional, documentação disponível e base pronta para evoluções (auth, filtros, paginação). Pendências concentram-se em robustez (validação, erros, testes).
+
+## Atualizações Recentes (Refatoração)
+
+Resumo das melhorias aplicadas para reforçar SRP (Single Responsibility) e clareza arquitetural:
+- Serviços divididos: um service por ação (Criar / Listar / Buscar / Atualizar / Excluir) implementando interface genérica `IAcaoTarefa<TEntrada, TSaida>` com método `execute`.
+- Controladores independentes: um controlador por ação (`CriarTarefaControlador`, etc.) apenas orquestra entrada/saída.
+- DTOs introduzidos: `TarefaDTO`, `CriarTarefaDTO`, `AtualizarTarefaDTO` padronizam contrato externo (datas em string ISO).
+- Mapper (`TarefaMapper`): conversão segura Entidade -> DTO (centraliza formatação).
+- Fábrica (`TarefaFabrica`): ponto único de criação de `Tarefa` aplicando defaults (status/prioridade) e parsing de datas.
+- Container (`src/bootstrap/container.ts`): composition root simples (instancia pool MySQL, repositório, services, controllers).
+- Rotas desacopladas (`tarefaRotas.ts`): apenas mapeiam endpoints para controladores.
+- Swagger enriquecido: anotações completas nos endpoints, esquemas alinhados aos DTOs.
+- Validação básica: (caso mantenha) classe `ValidadorTarefa` para checagem de payload (título, enums). Próximo passo: substituir por lib (Zod / Yup) para mensagens mais ricas.
+- Tratamento de erros: classe `ErroAplicacao` para diferenciar erros conhecidos de 500 genérico.
+- Frontend adaptável: uso de `REACT_APP_API_URL` e consumo dos DTOs sem conhecer entidade interna.
+
+## Estrutura do Projeto (Atualizada)
+
+```
+backend/
+  src/
+    index.ts                     # Express inicial (monta middlewares e usa rotas)
+    bootstrap/
+      container.ts               # Instancia repositório, services, controllers
+    adaptadores/
+      rotas/
+        tarefaRotas.ts
+      controladores/
+        CriarTarefaControlador.ts
+        ListarTarefasControlador.ts
+        BuscarTarefaControlador.ts
+        AtualizarTarefaControlador.ts
+        ExcluirTarefaControlador.ts
+      repositorios/
+        MySQLTarefaRepositorio.ts
+      db/
+        conexao.ts               # Pool e init de schema (se usado)
+    aplicacao/
+      servicos/
+        IAcaoTarefa.ts
+        CriarTarefaService.ts
+        ListarTarefasService.ts
+        BuscarTarefaService.ts
+        AtualizarTarefaService.ts
+        ExcluirTarefaService.ts
+      dtos/
+        TarefaDTO.ts             # DTOs + Mapper (se separado mover para mapeadores/)
+      mapeadores/
+        TarefaMapper.ts
+    dominio/
+      entidades/
+        Tarefa.ts
+      fabricas/
+        TarefaFabrica.ts
+      portas/
+        ITarefaRepositorio.ts
+      erros/
+        ErroAplicacao.ts
+    config/
+      swagger.ts
+frontend/
+  src/
+    servicos/api.ts              # Cliente HTTP + tipos DTO
+```
+
+## DTOs e Mapper
+
+Por que DTO?
+- Estabiliza o contrato externo mesmo que a entidade mude internamente.
+- Simplifica serialização (datas -> ISO).
+- Evita vazamento de detalhes de implementação (propriedades internas / métodos).
+
+Principais:
+- `TarefaDTO`: shape externo completo.
+- `CriarTarefaDTO`: entrada para criação (sem id, sem timestamps).
+- `AtualizarTarefaDTO`: entrada parcial + id.
+- `TarefaMapper.toDTO(entidade)`: converte entidade para DTO.
+
+## Fábrica (TarefaFabrica)
+
+Centraliza a criação de entidades aplicando:
+- Defaults (`status = 'pendente'`, `prioridade = 'media'`).
+- Conversão de `dataVencimento` (string -> Date).
+- Facilita futuras regras (ex.: normalizar título).
+
+## Serviços (Services)
+
+Cada caso de uso isolado:
+- CriarTarefaService.execute(CriarTarefaDTO) -> TarefaDTO
+- ListarTarefasService.execute(void) -> TarefaDTO[]
+- BuscarTarefaService.execute(id) -> TarefaDTO
+- AtualizarTarefaService.execute(AtualizarTarefaDTO) -> TarefaDTO
+- ExcluirTarefaService.execute(id) -> void
+
+Benefícios:
+- Testes unitários simples (mock só do repositório).
+- Adoção de interface `IAcaoTarefa` padroniza invocação.
+
+## Controladores
+
+Funções únicas:
+- Validar/parsing leve (ideal mover tudo para camada de validação).
+- Chamar serviço (execute).
+- Retornar resposta HTTP.
+
+Não contêm regras de negócio.
+
+## Validação
+
+Estado atual:
+- Validação mínima (ex.: título, enums).
+Recomendado:
+- Introduzir schema (Zod):
+  - Declarar: `const criarSchema = z.object({ titulo: z.string().min(1), status: z.enum([...]).optional() })`
+  - Integrar middleware antes do controlador.
+- Padronizar resposta de erro: `{ mensagem, campo, codigo }`.
+
+## Erros
+
+`ErroAplicacao`:
+- `status` HTTP configurável.
+- Fábricas estáticas (ex.: `ErroAplicacao.naoEncontrado()`).
+- Middleware global mapeia para JSON.
+
+## Swagger (Documentação)
+
+Acesso: `GET /api/docs`
+
+Esquemas esperados:
+- `TarefaDTO`
+- `CriarTarefaDTO`
+- `AtualizarTarefaDTO`
+- `Erro`
+
+Para adicionar novos endpoints:
+1. Criar controlador + service.
+2. Anotar rota com bloco `@swagger`.
+3. Atualizar schemas em `config/swagger.ts` se necessário.
+
+## Fluxo (Exemplo Criar)
+
+HTTP POST /api/tarefas ->
+Controlador (extrai body) ->
+Fábrica cria Entidade ->
+Repositório persiste ->
+Service retorna Entidade ->
+Mapper -> DTO ->
+Resposta JSON 201.
+
+## Adaptação do Frontend
+
+- Centralizar chamadas em `frontend/src/servicos/api.ts`.
+- Usar `REACT_APP_API_URL` no `.env`.
+- Converter `dataVencimento` para `input[type=date]` via substring (0,10).
+- Atualizações parciais: enviar só campos alterados.
+- Tratar erros: `e.response?.data.mensagem`.
+
+## Próximos Passos Recomendados
+
+1. Substituir validação manual por Zod.
+2. Adicionar testes de integração (Supertest) para garantir contrato.
+3. Script de cobertura (`"test:coverage": "jest --coverage"`).
+4. Paginação e filtros (query params).
+5. Autenticação (camada extra de adaptador de entrada).
+6. Logs estruturados (pino/winston).
+7. Remover código legado (qualquer serviço monolítico).
+
+## Checklist (Atualizado)
+
+| Item | Status |
+|------|--------|
+| Serviços isolados (SRP) | OK |
+| DTO / Mapper | OK |
+| Fábrica de entidade | OK |
+| Container de composição | OK |
+| Swagger atualizado | OK |
+| Validação robusta | PEND |
+| Testes integração | PEND |
+| Padronização erros detalhados | PEND |
+| Paginação / filtros | PEND |
+| Autenticação | PEND |

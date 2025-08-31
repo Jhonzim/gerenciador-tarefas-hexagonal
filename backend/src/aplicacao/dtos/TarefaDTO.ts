@@ -1,4 +1,5 @@
-import { StatusTarefa, PrioridadeTarefa } from '../../dominio/entidades/Tarefa';
+import { StatusTarefa } from '../../dominio/valores/StatusTarefa';
+import { PrioridadeTarefa } from '../../dominio/valores/PrioridadeTarefa';
 
 export interface TarefaDTO {
   id: number;

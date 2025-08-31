@@ -1,8 +1,8 @@
-import { Tarefa, TarefaProps } from '../entidades/Tarefa';
+import { Tarefa, TarefaProps } from '../../dominio/entidades/Tarefa';
 import { CriarTarefaDTO } from '../../aplicacao/dtos/TarefaDTO';
-import { ErroAplicacao } from '../erros/ErroAplicacao';
-import { STATUS_TAREFA_VALORES, StatusTarefa } from '../valores/StatusTarefa';
-import { PRIORIDADE_TAREFA_VALORES, PrioridadeTarefa } from '../valores/PrioridadeTarefa';
+import { STATUS_TAREFA_VALORES, StatusTarefa } from '../../dominio/valores/StatusTarefa';
+import { PRIORIDADE_TAREFA_VALORES, PrioridadeTarefa } from '../../dominio/valores/PrioridadeTarefa';
+import { ErroAplicacao } from '../../dominio/erros/ErroAplicacao';
 
 export class TarefaFabrica {
   private static validar(dados: CriarTarefaDTO) {
@@ -15,12 +15,10 @@ export class TarefaFabrica {
     if (dados.descricao && dados.descricao.length > 1000) {
       throw new ErroAplicacao('Descrição excede 1000 caracteres', 400);
     }
-    const status = dados.status as StatusTarefa;
-    if (status && !STATUS_TAREFA_VALORES.includes(status)) {
+    if (dados.status && !STATUS_TAREFA_VALORES.includes(dados.status)) {
       throw new ErroAplicacao('Status inválido', 400);
     }
-    const prioridade = dados.prioridade as PrioridadeTarefa;
-    if (prioridade && !PRIORIDADE_TAREFA_VALORES.includes(prioridade)) {
+    if (dados.prioridade && !PRIORIDADE_TAREFA_VALORES.includes(dados.prioridade)) {
       throw new ErroAplicacao('Prioridade inválida', 400);
     }
     if (dados.dataVencimento) {
