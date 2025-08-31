@@ -1,143 +1,143 @@
 # Gerenciador de Tarefas
 
-Este projeto é um sistema de gerenciamento de tarefas desenvolvido como trabalho acadêmico para a disciplina de Programação Orientada a Objetos. O sistema permite criar, listar, atualizar e excluir tarefas, utilizando uma arquitetura hexagonal para promover uma separação clara de responsabilidades e facilitar a manutenção e testes.
+Aplicação simples de gerenciamento de tarefas (criar, listar, atualizar, excluir) usando TypeScript, arquitetura Hexagonal (Ports & Adapters), Express, MySQL (Docker) e React.
 
-## Arquitetura Utilizada
-
+## Arquitetura (Hexagonal)
 ![Arquitetura do Projeto](./Diagrama%20de%20arquitetura.png)
+- Dominio: Entidades e portas (interfaces) puras (ex.: Tarefa, ITarefaRepositorio).
+- Aplicacao: Casos de uso / serviços (ex.: TarefaServico) orquestram regras.
+- Adaptadores:
+  - Entrada: Controladores + Rotas Express.
+  - Saída: Repositório MySQL e camada de conexão.
+- Infraestrutura: Docker Compose para banco e phpMyAdmin.
 
-O projeto adota a **Arquitetura Hexagonal** (também conhecida como Ports and Adapters), que visa isolar o núcleo da aplicação (domínio) das preocupações externas, como interfaces de usuário, bancos de dados e serviços externos. Essa arquitetura é dividida em três camadas principais:
+Essa estrutura permite trocar o banco, adicionar autenticação ou outra interface sem alterar o núcleo.
 
-### 1. Domínio (Núcleo da Aplicação)
-- **Entidades**: Representam os objetos de negócio, como `Tarefa`.
-- **Portas (Interfaces)**: Definem contratos para interações externas, como `ITarefaRepositorio`.
-- Esta camada contém a lógica de negócio pura, independente de frameworks ou tecnologias específicas.
+## Tecnologias
 
-### 2. Aplicação
-- **Casos de Uso (Serviços)**: Implementam a lógica de aplicação, como `TarefaServico`, que coordena as operações entre o domínio e as portas.
-- Esta camada orquestra as regras de negócio e interage com as portas para acessar recursos externos.
+Backend: Node.js, TypeScript, Express, MySQL (mysql2), Jest  
+Frontend: React + TypeScript + Axios  
+Infra: Docker / Docker Compose  
 
-### 3. Adaptadores (Infraestrutura)
-- **Adaptadores de Entrada**: Lidam com requisições externas, como controladores HTTP (`TarefaControlador`) e rotas (`tarefaRotas`).
-- **Adaptadores de Saída**: Implementam as portas, como repositórios (`MySQLTarefaRepositorio`) e conexões com bancos de dados.
-- Esta camada conecta o núcleo da aplicação a tecnologias específicas, como Express, MySQL e Axios.
-
-A arquitetura hexagonal permite:
-- Facilidade para testes unitários e de integração.
-- Substituição de tecnologias (ex.: trocar MySQL por PostgreSQL) sem afetar o domínio.
-- Separação clara entre responsabilidades, tornando o código mais modular e sustentável.
-
-## Tecnologias Utilizadas
-
-- **Backend**:
-  - Linguagem: TypeScript
-  - Framework: Express.js
-  - Banco de Dados: MySQL (via Docker)
-  - Arquitetura: Hexagonal
-  - Testes: Jest
-
-- **Frontend**:
-  - Linguagem: TypeScript
-  - Framework: React
-  - Biblioteca HTTP: Axios
-  - Estilização: CSS puro
-
-- **Infraestrutura**:
-  - Docker: Para containerização do MySQL
-  - Docker Compose: Para orquestração de serviços
-
-## Estrutura do Projeto
+## Estrutura Simplificada
 
 ```
-backend
-├── src
-│   ├── dominio
-│   │   ├── entidades
-│   │   │   └── Tarefa.ts
-│   │   └── repositorios
-│   │       └── ITarefaRepositorio.ts
-│   ├── aplicacao
-│   │   └── servicos
-│   │       └── TarefaServico.ts
-│   └── infraestrutura
-│       ├── bancoDados
-│       │   └── MySQLTarefaRepositorio.ts
-│       └── web
-│           ├── controladores
-│           │   └── TarefaControlador.ts
-│           └── rotas
-│               └── tarefaRotas.ts
-└── package.json
-frontend
-├── src
-│   ├── componentes
-│   │   └── TarefaFormulario.tsx
-│   ├── paginas
-│   │   └── Home.tsx
-│   └── App.tsx
-└── package.json
+backend/
+  src/
+    dominio/
+    aplicacao/
+    adaptadores/
+    index.ts
+  .env.example
+frontend/
+  src/
 docker-compose.yml
 ```
 
-## Como Executar o Projeto
+## Passo a Passo (IMPORTANTE: Configurar .env antes de executar)
 
-### Pré-requisitos
-- Node.js (versão 14 ou superior)
-- Docker e Docker Compose
-- npm ou yarn
+### 1. Subir banco (Docker)
 
-### Passos para Execução
+```bash
+docker-compose up -d
+```
 
-1. **Clone ou baixe o projeto**:
-   - Navegue até a pasta raiz do projeto: `c:\Users\Joao\Desktop\Faculdade\Projeto Orientado a Objetos\AppTarefasPOO`
+### 2. Configurar variáveis de ambiente
 
-2. **Configure o banco de dados**:
-   - Inicie o MySQL via Docker:
-     ```
-     docker-compose up -d
-     ```
-   - Isso criará um container com MySQL rodando na porta 3306.
+Dentro de backend:
 
-3. **Configure o backend**:
-   - Navegue para a pasta `backend`:
-     ```
-     cd backend
-     ```
-   - Instale as dependências:
-     ```
-     npm install
-     ```
-   - Execute o backend:
-     ```
-     npm run dev
-     ```
-   - O backend estará rodando em `http://localhost:5000`.
+```bash
+cp .env.example .env
+```
 
-4. **Configure o frontend**:
-   - Abra um novo terminal e navegue para a pasta `frontend`:
-     ```
-     cd ../frontend
-     ```
-   - Instale as dependências:
-     ```
-     npm install
-     ```
-   - Execute o frontend:
-     ```
-     npm start
-     ```
-   - O frontend estará rodando em `http://localhost:3000`.
+Edite `.env` se necessário (PORT, DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE). Sem esse arquivo o backend não conecta ao banco.
 
-5. **Acesse a aplicação**:
-   - Abra o navegador e vá para `http://localhost:3000` para usar a interface web.
+### 3. Instalar e rodar backend
 
-### Executando Testes
+```bash
+cd backend
+npm install
+npm run dev
+```
 
-- Para o backend, navegue para a pasta `backend` e execute:
-  ```
-  npm test
-  ```
-- Para o frontend, navegue para a pasta `frontend` e execute:
+API em: http://localhost:5000
+
+### 4. Instalar e rodar frontend
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+Frontend em: http://localhost:3000
+
+### 5. Testes (backend)
+
+```bash
+cd backend
+npm test
+```
+
+(Jest configurado; testes não bloqueiam execução da aplicação.)
+
+## Endpoints Principais (Backend)
+
+Base: /api/tarefas  
+- POST /  -> criar tarefa  
+- GET /   -> listar tarefas  
+- GET /:id -> buscar tarefa  
+- PUT /:id -> atualizar tarefa  
+- DELETE /:id -> remover tarefa  
+
+Payload exemplo (POST / PUT):
+```json
+{
+  "titulo": "Estudar POO",
+  "descricao": "Revisar conceitos",
+  "status": "pendente",
+  "prioridade": "media",
+  "dataVencimento": "2025-09-10"
+}
+```
+
+## Scripts Úteis
+
+Backend:
+- npm run dev: desenvolvimento (ts-node-dev)
+- npm run build: compila para dist
+- npm start: executa compilado
+- npm test: testes
+
+Frontend:
+- npm start: desenvolvimento
+- npm run build: build produção
+
+## Variáveis (.env backend)
+
+```
+PORT=5000
+DB_HOST=localhost
+DB_USER=tarefas_user
+DB_PASSWORD=tarefas_password
+DB_DATABASE=tarefas_db
+```
+
+## Possíveis Próximas Extensões
+
+- Autenticação / usuários
+- Filtros e paginação
+- Logs estruturados
+- Dockerfile para produção
+
+## Resumo
+
+1. docker-compose up -d  
+2. Copiar .env.example para .env no backend  
+3. Instalar dependências backend + frontend  
+4. Rodar backend e depois frontend  
+
+Projeto acadêmico demonstrando separação de camadas com arquitetura hexagonal.
   ```
   npm test
   ```
