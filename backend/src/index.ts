@@ -6,6 +6,8 @@ import { MySQLTarefaRepositorio } from './adaptadores/repositorios/MySQLTarefaRe
 import { TarefaServico } from './aplicacao/TarefaServico';
 import { TarefaControlador } from './adaptadores/controladores/TarefaControlador';
 import { criarTarefaRotas } from './adaptadores/rotas/tarefaRotas';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger';
 
 dotenv.config();
 
@@ -35,6 +37,12 @@ async function iniciarServidor() {
     app.get('/', (req, res) => {
       res.json({ mensagem: 'API de Gerenciamento de Tarefas está funcionando!' });
     });
+    
+    // Documentação da API
+    app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+      explorer: true,
+      customSiteTitle: 'Documentação API Tarefas'
+    }));
     
     // Iniciar o servidor
     app.listen(PORT, () => {

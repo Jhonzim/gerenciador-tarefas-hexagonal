@@ -1,161 +1,92 @@
-# Gerenciador de Tarefas
+# Gerenciador de Tarefas – Arquitetura Hexagonal (Ports & Adapters)
 
-Aplicação simples de gerenciamento de tarefas (criar, listar, atualizar, excluir) usando TypeScript, arquitetura Hexagonal (Ports & Adapters), Express, MySQL (Docker) e React.
+Aplicação CRUD simples de Tarefas para fins acadêmicos demonstrando POO, separação de camadas e documentação via Swagger.
 
-## Arquitetura (Hexagonal)
 ![Arquitetura do Projeto](./Diagrama%20de%20arquitetura.png)
-- Dominio: Entidades e portas (interfaces) puras (ex.: Tarefa, ITarefaRepositorio).
-- Aplicacao: Casos de uso / serviços (ex.: TarefaServico) orquestram regras.
-- Adaptadores:
-  - Entrada: Controladores + Rotas Express.
-  - Saída: Repositório MySQL e camada de conexão.
-- Infraestrutura: Docker Compose para banco e phpMyAdmin.
 
-Essa estrutura permite trocar o banco, adicionar autenticação ou outra interface sem alterar o núcleo.
+## 1. Justificativa da Arquitetura
 
-## Tecnologias
+Arquitetura Hexagonal escolhida para:
+- Desacoplar núcleo de domínio de infraestrutura (banco, HTTP, bibliotecas).
+- Facilitar testes isolados (mock de portas).
+- Permitir substituição de adaptadores (ex.: trocar MySQL por outro).
+- Evoluir facilmente (ex.: adicionar autenticação sem alterar domínio).
+- Reduzir dependência acidental de frameworks.
 
-Backend: Node.js, TypeScript, Express, MySQL (mysql2), Jest  
-Frontend: React + TypeScript + Axios  
-Infra: Docker / Docker Compose  
+## 2. Fluxo CRUD (Passo a Passo)
 
-## Estrutura do Projeto
+Exemplo (Criar Tarefa):
+1. Cliente envia POST /api/tarefas.
+2. Rota → chama Controlador.
+3. Controlador valida/passa dados ao Serviço (TarefaServico).
+4. Serviço cria entidade Tarefa e usa Porta ITarefaRepositorio.
+5. Adaptador (MySQLTarefaRepositorio) executa SQL.
+6. Retorna entidade → controlador serializa → resposta JSON.
 
-Abaixo uma visão detalhada das pastas para facilitar manutenção e expansão futura:
+Atualizar / Buscar / Listar / Excluir seguem o mesmo padrão mudando a operação no repositório.
 
+Fluxo de dados (simplificado):
+
+Cliente → (HTTP) Rotas → Controlador → Serviço (Caso de Uso) → Porta Repositório → Adaptador (MySQL) → Banco  
+                                    ↑---------------- Entidade / Regras ----------------↑
+
+## 3. Responsabilidades
+
+- dominio/entidades/Tarefa.ts: Regra / invariantes de Tarefa.
+- dominio/portas/ITarefaRepositorio.ts: Contrato de persistência.
+- aplicacao/TarefaServico.ts: Casos de uso (coordenar operações).
+- adaptadores/repositorios/MySQLTarefaRepositorio.ts: Implementação da porta via SQL.
+- adaptadores/db/conexao.ts: Criação e bootstrap do schema.
+- adaptadores/controladores/TarefaControlador.ts: Entrada HTTP.
+- adaptadores/rotas/tarefaRotas.ts: Definição das rotas Express.
+- index.ts: Composição (wiring) das dependências.
+- tests (TarefaServico.test.ts): Testes de regras de aplicação.
+- config/swagger.ts + anotações: Documentação automática.
+
+## 4. Padrões de Projeto Aplicados
+
+- Repository: Abstrai persistência (ITarefaRepositorio).
+- Ports & Adapters: Hexagonal (portas = interfaces; adaptadores = implementações).
+- Dependency Injection manual: Objetos criados e passados no index.ts.
+- DTO implícito: Dados simples repassados entre camadas (poderia formalizar).
+- Entity: Objeto de domínio com encapsulamento e métodos de modificação.
+
+## 5. Conceitos de POO
+
+- Encapsulamento: Propriedades privadas manipuladas por getters/setters na entidade Tarefa.
+- Abstração: ITarefaRepositorio oculta detalhes de persistência.
+- Polimorfismo: Possibilidade de múltiplos repositórios (ex.: EmMemoriaTarefaRepositorio futuro).
+- Herança: Não utilizada (intencional — composição suficiente neste escopo).
+- Imutabilidade parcial: Modificações sempre atualizam dataAtualizacao.
+
+## 6. Instalação e Execução (Resumo)
+
+Pré-requisitos: Node.js ≥14, Docker, npm.
+
+Banco:
 ```
-AppTarefasPOO/
-├── docker-compose.yml
-├── README.md
-├── .gitignore
-├── backend/
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── .env.example
-│   ├── src/
-│   │   ├── index.ts                 # Bootstrap do servidor Express
-│   │   ├── dominio/                 # Núcleo (enterprise rules)
-│   │   │   ├── entidades/           # Entidades de domínio (Tarefa.ts, etc.)
-│   │   │   └── portas/              # Interfaces (ex.: ITarefaRepositorio.ts)
-│   │   ├── aplicacao/               # Casos de uso / serviços de aplicação
-│   │   │   ├── TarefaServico.ts
-│   │   │   └── __tests__/           # Testes unitários focados em regras de aplicação
-│   │   ├── adaptadores/             # Adapters (infra / entrada / saída)
-│   │   │   ├── controladores/       # Controladores HTTP (TarefaControlador.ts)
-│   │   │   ├── rotas/               # Definições de rotas Express
-│   │   │   ├── repositorios/        # Implementações concretas (MySQLTarefaRepositorio.ts)
-│   │   │   ├── db/                  # Conexão e inicialização do banco
-│
-├── frontend/
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── public/
-│   │   └── index.html               # Template raiz
-│   ├── src/
-│   │   ├── index.tsx                # Entrada React
-│   │   ├── App.tsx
-│   │   ├── componentes/             # Componentes reutilizáveis (ex.: ListaTarefas, FormularioTarefa)
-│   │   ├── servicos/                # Consumo de APIs (api.ts)
-│   │   ├── tipos/                   # Definições TypeScript (ex.: Tarefa.ts)
-```
-
-### Convenções
-
-- dominio não importa nada de adaptadores.
-- aplicacao só conhece dominio e portas.
-- adaptadores implementam portas e expõem HTTP.
-- Repositórios ficam em adaptadores/repositorios e recebem dependências explícitas (injeção manual).
-- Testes unitários preferencialmente próximos aos casos de uso (`src/aplicacao/__tests__`).
-
-### Possíveis diretórios futuros
-
-| Diretório            | Uso Futuro                                                        |
-|----------------------|-------------------------------------------------------------------|
-| backend/src/eventos  | Integração assíncrona / domain events                             |
-| backend/src/jobs     | Tarefas agendadas (cron)                                          |
-| frontend/src/testes  | Testes de componentes / integração                                |
-| frontend/src/theme   | Centralizar tokens de design                                     |
-
-## Passo a Passo (IMPORTANTE: Configurar .env antes de executar)
-
-### 1. Subir banco (Docker)
-
-```bash
 docker-compose up -d
 ```
 
-### 2. Configurar variáveis de ambiente
-
-Dentro de backend:
-
-```bash
-cp .env.example .env
+Backend:
 ```
-
-Edite `.env` se necessário (PORT, DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE). Sem esse arquivo o backend não conecta ao banco.
-
-### 3. Instalar e rodar backend
-
-```bash
 cd backend
+cp .env.example .env
 npm install
 npm run dev
 ```
 
-API em: http://localhost:5000
-
-### 4. Instalar e rodar frontend
-
-```bash
+Frontend:
+```
 cd frontend
 npm install
 npm start
 ```
 
-Frontend em: http://localhost:3000
+Swagger: http://localhost:5000/api/docs  
+Frontend: http://localhost:3000
 
-### 5. Testes (backend)
-
-```bash
-cd backend
-npm test
-```
-
-(Jest configurado; testes não bloqueiam execução da aplicação.)
-
-## Endpoints Principais (Backend)
-
-Base: /api/tarefas  
-- POST /  -> criar tarefa  
-- GET /   -> listar tarefas  
-- GET /:id -> buscar tarefa  
-- PUT /:id -> atualizar tarefa  
-- DELETE /:id -> remover tarefa  
-
-Payload exemplo (POST / PUT):
-```json
-{
-  "titulo": "Estudar POO",
-  "descricao": "Revisar conceitos",
-  "status": "pendente",
-  "prioridade": "media",
-  "dataVencimento": "2025-09-10"
-}
-```
-
-## Scripts Úteis
-
-Backend:
-- npm run dev: desenvolvimento (ts-node-dev)
-- npm run build: compila para dist
-- npm start: executa compilado
-- npm test: testes
-
-Frontend:
-- npm start: desenvolvimento
-- npm run build: build produção
-
-## Variáveis (.env backend)
+## 7. Variáveis de Ambiente (backend/.env)
 
 ```
 PORT=5000
@@ -165,22 +96,144 @@ DB_PASSWORD=tarefas_password
 DB_DATABASE=tarefas_db
 ```
 
-## Possíveis Próximas Extensões
+Configurar antes de iniciar o backend.
 
-- Autenticação / usuários
-- Filtros e paginação
-- Logs estruturados
-- Dockerfile para produção
+## 8. Endpoints Principais
 
-## Resumo
+Base: /api/tarefas
 
-1. docker-compose up -d  
-2. Copiar .env.example para .env no backend  
-3. Instalar dependências backend + frontend  
-4. Rodar backend e depois frontend  
+| Método | Rota        | Descrição          | Status |
+|--------|-------------|--------------------|--------|
+| POST   | /           | Criar tarefa       | 201    |
+| GET    | /           | Listar tarefas     | 200    |
+| GET    | /:id        | Buscar por id      | 200/404|
+| PUT    | /:id        | Atualizar tarefa   | 200/404|
+| DELETE | /:id        | Excluir tarefa     | 204/404|
 
-Projeto acadêmico demonstrando separação de camadas com arquitetura hexagonal.
-  ```
-  npm test
-  ```
+## 9. Exemplos (cURL)
 
+Criar:
+```
+curl -X POST http://localhost:5000/api/tarefas \
+  -H "Content-Type: application/json" \
+  -d '{"titulo":"Estudar POO","descricao":"Rever encapsulamento","status":"pendente","prioridade":"media"}'
+```
+
+Listar:
+```
+curl http://localhost:5000/api/tarefas
+```
+
+Atualizar:
+```
+curl -X PUT http://localhost:5000/api/tarefas/1 \
+  -H "Content-Type: application/json" \
+  -d '{"status":"concluida","prioridade":"alta"}'
+```
+
+Excluir:
+```
+curl -X DELETE http://localhost:5000/api/tarefas/1
+```
+
+## 10. Documentação Swagger
+
+- Gera schemas (Tarefa, CriarTarefaInput, AtualizarTarefaInput).
+- Atualizar doc: editar comentários JSDoc em adaptadores/rotas/tarefaRotas.ts ou schemas em config/swagger.ts.
+- Acessar: /api/docs
+
+## 11. Testes
+
+Rodar:
+```
+cd backend
+npm test
+```
+
+Cobertura atual: foco em serviço (TarefaServico).  
+Futuro: adicionar testes de integração (supertest) cobrindo rotas e banco (ambiente temporário).
+
+## 12. Tratamento de Erros e Validação (Estado Atual)
+
+- Validação mínima (apenas título obrigatório).
+- Erros genéricos retornam 500.
+- Próximo passo recomendado: camada de validação (ex.: Zod / custom), padronizar resposta: `{ mensagem, codigo }`.
+- Mapear: 400 (entrada inválida), 404 (não encontrado).
+
+## 13. Estrutura (Detalhada)
+
+```
+backend/
+  src/
+    dominio/
+      entidades/           # Entidades de negócio
+      portas/              # Interfaces (contracts)
+    aplicacao/
+      TarefaServico.ts     # Casos de uso
+      TarefaServico.test.ts
+    adaptadores/
+      controladores/       # Controladores Express
+      repositorios/        # Repositório MySQL
+      rotas/               # Rotas HTTP
+      db/                  # Conexão + bootstrap SQL
+    config/
+      swagger.ts           # Config OpenAPI
+    index.ts               # Composição
+frontend/
+  src/
+    componentes/
+    servicos/
+    tipos/
+    ...
+```
+
+## 14. Checklist (Autoavaliação)
+
+| Item                                                   | Status | Observação |
+|--------------------------------------------------------|--------|------------|
+| Arquitetura explicada e justificada                    | OK     | Seção 1    |
+| Fluxo CRUD detalhado                                   | OK     | Seção 2    |
+| Responsabilidades mapeadas                             | OK     | Seção 3    |
+| Padrões descritos                                      | OK     | Seção 4    |
+| Estrutura de pastas clara                              | OK     | Seção 13   |
+| Documentação básica (.env, execução)                   | OK     | Seções 6–8 |
+| Exemplos de uso                                        | OK     | Seção 9    |
+| Swagger disponível                                     | OK     | Seção 10   |
+| Conceitos POO explicados                               | OK     | Seção 5    |
+| Tratamento de erros robusto                            | PEND   | Implementar validação e mapeamento HTTP |
+| Validação de dados                                     | PEND   | Criar camada / middleware |
+| Testes integração                                      | PEND   | Adicionar supertest |
+| Cobertura ampliada                                     | PEND   | Medir e ampliar |
+| Versionamento Git (documentado)                        | PEND   | Adicionar seção de convenções |
+| Interface mínima (frontend)                            | OK     | CRUD React |
+| Uso de IA (menção)                                     | PEND   | Adicionar nota opcional |
+
+## 15. Pendências Recomendadas
+
+1. Validação de entrada: criar um validador (ex.: função validarTarefaDTO) antes de chamar o serviço.
+2. Padronizar erros: criar classe ErroAplicacao e mapeamento (middleware) para status.
+3. Testes de integração: usar supertest para endpoints reais (banco isolado ou mock).
+4. Cobertura: adicionar script `npm run test:coverage`.
+5. Logs estruturados: console substituível por pino/winston.
+6. Versionamento: descrever convenção de commits (ex.: Conventional Commits) no README.
+7. Camada DTO explícita: separar modelos de entrada/saída.
+8. Variáveis no frontend: mover baseURL para REACT_APP_API_URL.
+9. Script de seed opcional.
+10. Dockerfile para backend e frontend (deploy futuro).
+
+## 16. Próximos Passos (Resumo de Ação)
+
+| Passo | Ação |
+|-------|------|
+| 1 | Implementar validação de payload antes do serviço |
+| 2 | Criar middleware de erro padronizado |
+| 3 | Adicionar testes de integração (supertest) |
+| 4 | Criar script coverage e medir lacunas |
+| 5 | Documentar convenção Git/commits |
+| 6 | Externalizar baseURL (frontend .env) |
+| 7 | Adicionar DTOs explícitos (entrada/saída) |
+| 8 | Melhorar mensagens de erro (i18n opcional) |
+
+## 17. Conclusão
+
+Núcleo desacoplado, CRUD funcional, documentação disponível e base pronta para evoluções (auth, filtros, paginação). Pendências concentram-se em robustez (validação, erros, testes).
