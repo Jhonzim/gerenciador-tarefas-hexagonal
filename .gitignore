@@ -1,0 +1,20 @@
+# Node modules (frontend e backend)
+frontend/node_modules/
+backend/node_modules/
+
+# Builds
+frontend/build/
+frontend/dist/
+backend/build/
+backend/dist/
+
+# Logs
+*.log
+
+# Ambientes
+frontend/.env
+backend/.env
+
+# IDEs
+.vscode/
+.idea/

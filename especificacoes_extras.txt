@@ -1,0 +1,69 @@
+Seminário: Apresentação de CRUD com Arquitetura Orientada a Objetos
+
+Objetivo:
+Apresentar um projeto de CRUD (Create, Read, Update, Delete) demonstrando os conceitos de Programação Orientada a Objetos (POO), arquitetura de software e boas práticas de desenvolvimento.
+
+O trabalho deve contemplar os seguintes pontos:
+
+Arquitetura do Sistema:
+
+Explicação da arquitetura adotada (ex.: MVC, camadas, modular).
+
+Justificativa da escolha da arquitetura.
+
+Lógica do Sistema:
+
+Funcionamento do CRUD passo a passo.
+
+Fluxos de dados e interações entre os componentes.
+
+Responsabilidades e Padrões de Projeto:
+
+Responsabilidade de cada classe ou módulo.
+
+Padrões de projeto aplicados (ex.: Repository, Factory, Singleton).
+
+Modularização e Estrutura de Pastas:
+
+Organização do código e separação de módulos.
+
+Lógica por trás da estrutura de pastas.
+
+Documentação Básica:
+
+Como instalar/rodar o projeto.
+
+Principais classes e funções.
+
+Exemplos de uso do CRUD.
+
+Testes e Demonstração:
+
+O CRUD deve ser testado na apresentação.
+
+Demonstração pelo front-end ou, caso não haja, por Postman, cURL ou ferramentas similares.
+
+Boas Práticas e Conceitos de POO:
+
+Encapsulamento, herança, polimorfismo, abstração.
+
+Tratamento de erros e validação de dados.
+
+Estratégias de verificação do sistema.
+
+Extras (opcional, mas gera pontos extras):
+
+Implementação de interface gráfica para interação com o CRUD.
+
+Uso de IDE com recursos de Inteligência Artificial para auxiliar no desenvolvimento.
+
+Uso de Git/GitHub para versionamento.
+
+Testes unitários ou de integração.
+
+Utilização do swagger para documentação da api
+
+// Conflito: react‑scripts@5.0.1 exige TypeScript "^3.2.1 || ^4" e a versão instalada é 5.9.2.
+// Soluções recomendadas:
+// - Usar "npm install --legacy-peer-deps" (ou configurar legacy-peer-deps=true no .npmrc)
+// - Ou fazer downgrade do TypeScript para, por exemplo, 4.9.5.
