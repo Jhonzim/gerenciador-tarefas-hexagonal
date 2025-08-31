@@ -45,10 +45,6 @@ AppTarefasPOO/
 │   │   │   ├── rotas/               # Definições de rotas Express
 │   │   │   ├── repositorios/        # Implementações concretas (MySQLTarefaRepositorio.ts)
 │   │   │   ├── db/                  # Conexão e inicialização do banco
-│   │   │   └── mapeamentos/         # (Opcional futuro) ORMs / mapeamentos adicionais
-│   │   ├── configuracao/            # (Opcional) Config helpers, loaders
-│   │   └── shared/                  # (Opcional) Tipos utilitários / helpers genéricos
-│   └── dist/                        # (Gerado) Código compilado
 │
 ├── frontend/
 │   ├── package.json
@@ -59,18 +55,8 @@ AppTarefasPOO/
 │   │   ├── index.tsx                # Entrada React
 │   │   ├── App.tsx
 │   │   ├── componentes/             # Componentes reutilizáveis (ex.: ListaTarefas, FormularioTarefa)
-│   │   ├── paginas/                 # (Opcional) Páginas se usar roteamento
 │   │   ├── servicos/                # Consumo de APIs (api.ts)
 │   │   ├── tipos/                   # Definições TypeScript (ex.: Tarefa.ts)
-│   │   ├── estilos/                 # (Opcional) CSS modular / theme
-│   │   ├── hooks/                   # (Opcional) Hooks customizados
-│   │   ├── context/                 # (Opcional) Context API (ex.: auth futuramente)
-│   │   └── utils/                   # (Opcional) Funções utilitárias
-│   ├── build/                       # (Gerado) Build de produção
-│
-├── docs/                            # (Opcional) Documentação extra
-│   └── arquitetura.md
-└── scripts/                         # (Opcional) Scripts auxiliares (seed, migrate, etc.)
 ```
 
 ### Convenções
