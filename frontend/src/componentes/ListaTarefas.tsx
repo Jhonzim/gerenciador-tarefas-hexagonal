@@ -16,7 +16,7 @@ const ListaTarefas: React.FC = () => {
       setTarefas(tarefasCarregadas);
       setErro('');
     } catch (error) {
-      console.error('Erro ao carregar tarefas:', error);
+      console.log('Erro ao carregar tarefas:', error);
       setErro('Falha ao carregar as tarefas. Tente novamente mais tarde.');
     } finally {
       setCarregando(false);

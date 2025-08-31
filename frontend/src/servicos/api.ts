@@ -1,9 +1,12 @@
 import axios from 'axios';
 import { Tarefa } from '../tipos/Tarefa';
 
+
 const api = axios.create({
-  baseURL: `http://localhost:${process.env.API_PORT}/api`
+  baseURL: `http://localhost:3000/api`
 });
+
+console.log('API baseURL:', api.defaults.baseURL);
 
 export const TarefaAPI = {
   listar: async (): Promise<Tarefa[]> => {

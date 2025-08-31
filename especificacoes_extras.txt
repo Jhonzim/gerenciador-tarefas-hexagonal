@@ -67,3 +67,10 @@ Utilização do swagger para documentação da api
 // Soluções recomendadas:
 // - Usar "npm install --legacy-peer-deps" (ou configurar legacy-peer-deps=true no .npmrc)
 // - Ou fazer downgrade do TypeScript para, por exemplo, 4.9.5.
+
+// ADICAO: Separação TarefaProps vs TarefaDTO
+// - TarefaProps: estrutura interna da entidade (usa Date, mantém regras de domínio).
+// - TarefaDTO: estrutura exposta entre camadas / rede (usa string ISO para datas).
+// - Mapper: TarefaMapper.toDTO(props) centraliza conversão evitando duplicação.
+// - Services agora recebem DTOs de entrada (ex.: CriarTarefaEntradaDTO) e retornam TarefaDTO.
+// Benefícios: desacoplamento, facilidade de serialização, estabilidade de contrato externo.
