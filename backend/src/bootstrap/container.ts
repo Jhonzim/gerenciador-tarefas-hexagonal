@@ -16,6 +16,8 @@ import { BuscarTarefaControlador } from '../adaptadores/controladores/BuscarTare
 import { AtualizarTarefaControlador } from '../adaptadores/controladores/AtualizarTarefaControlador';
 import { ExcluirTarefaControlador } from '../adaptadores/controladores/ExcluirTarefaControlador';
 
+import '../config/timezone';
+
 // -----------------------------------------------------------------------------
 // Pool MySQL (garanta que mysql2 esteja instalado: npm i mysql2)
 // -----------------------------------------------------------------------------
@@ -44,6 +46,8 @@ try {
 	console.error('[DB] Erro criando pool:', err?.message);
 	throw err;
 }
+
+// pool.query("SET time_zone = 'America/Sao_Paulo'").catch(e => console.warn('[DB] Falha ao setar time_zone:', e.message));
 
 // -----------------------------------------------------------------------------
 // Repositório (se quiser fallback em memória, adicione aqui uma classe alternativa)

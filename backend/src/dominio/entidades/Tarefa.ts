@@ -14,10 +14,6 @@ export interface TarefaProps {
   dataVencimento?: Date;
 }
 
-/**
- * Nota: Para expor dados da entidade para camadas externas usar TarefaMapper.toDTO().
- * TarefaProps permanece interno ao domínio mantendo tipos Date e sem formatação.
- */
 export class Tarefa {
   private props: TarefaProps;
 

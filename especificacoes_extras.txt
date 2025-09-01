@@ -74,3 +74,16 @@ Utilização do swagger para documentação da api
 // - Mapper: TarefaMapper.toDTO(props) centraliza conversão evitando duplicação.
 // - Services agora recebem DTOs de entrada (ex.: CriarTarefaEntradaDTO) e retornam TarefaDTO.
 // Benefícios: desacoplamento, facilidade de serialização, estabilidade de contrato externo.
+
+// TIMEZONE
+// - Projeto configurado para 'America/Sao_Paulo' via process.env.TZ (arquivo: backend/src/config/timezone.ts).
+// - Import na primeira linha de src/index.ts (garante que novas Date reflitam o fuso na serialização local).
+// - MySQL: executar "SET time_zone = 'America/Sao_Paulo'" após criar o pool (adicionado comentário no container).
+// - Datas armazenadas: continuam em formato Date (normalmente UTC no banco se colunas DATETIME).
+// - Se quiser garantir persistência padronizada em UTC e exibição convertida: manter armazenamento UTC e converter no frontend.
+// TESTE RÁPIDO:
+//   node -e "process.env.TZ='America/Sao_Paulo'; console.log(new Date().toString())"
+//   Deve mostrar 'GMT-0300' (ou -0200 durante horário de verão se aplicável).
+// ATENÇÃO:
+// - toISOString() sempre retorna UTC (termina com 'Z'). Isso é esperado e não muda com TZ.
+// - Para exibir horário local brasileiro no frontend, converter a string ISO com Intl.DateTimeFormat('pt-BR',{ timeZone:'America/Sao_Paulo' }).

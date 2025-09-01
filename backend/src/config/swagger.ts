@@ -58,6 +58,30 @@ export const swaggerSpec = swaggerJsdoc({
           properties: {
             mensagem: { type: 'string', example: 'Erro ao criar tarefa' }
           }
+        },
+        CriarTarefaDTO: {
+          type: 'object',
+          required: ['titulo'],
+          properties: {
+            titulo: { type: 'string' },
+            descricao: { type: 'string' },
+            status: { type: 'string', enum: ['pendente', 'em_andamento', 'concluida'] },
+            prioridade: { type: 'string', enum: ['baixa', 'media', 'alta'] },
+            dataVencimento: { type: 'string', format: 'date' }
+          }
+        },
+        TarefaDTO: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer', example: 1 },
+            titulo: { type: 'string', example: 'Estudar POO' },
+            descricao: { type: 'string', example: 'Revisar conceitos de polimorfismo' },
+            status: { type: 'string', enum: ['pendente', 'em_andamento', 'concluida'], example: 'pendente' },
+            prioridade: { type: 'string', enum: ['baixa', 'media', 'alta'], example: 'media' },
+            dataVencimento: { type: 'string', format: 'date-time', example: '2025-09-10T00:00:00.000Z' },
+            dataCriacao: { type: 'string', format: 'date-time' },
+            dataAtualizacao: { type: 'string', format: 'date-time' }
+          }
         }
       }
     }

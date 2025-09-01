@@ -1,13 +1,17 @@
 import { ITarefaRepositorio } from '../../dominio/portas/ITarefaRepositorio';
 import { ErroAplicacao } from '../../dominio/erros/ErroAplicacao';
 import { IAcaoTarefa } from './IAcaoTarefa';
-import { AtualizarTarefaDTO, TarefaDTO } from '../dtos/TarefaDTO';
+import { TarefaDTO } from '../dtos/TarefaDTO';
 import { TarefaMapper } from '../mapeadores/TarefaMapper';
+import { TarefaFabrica } from '../../dominio/fabricas/TarefaFabrica';
+import { AtualizarTarefaDTO } from '../dtos/AtualizarTarefaDTO';
 
 export class AtualizarTarefaService implements IAcaoTarefa<AtualizarTarefaDTO, TarefaDTO> {
   constructor(private repo: ITarefaRepositorio) {}
 
   async execute(dados: AtualizarTarefaDTO): Promise<TarefaDTO> {
+    TarefaFabrica.validarAtualizacao(dados);
+
     const existente = await this.repo.buscarPorId(dados.id);
     if (!existente) throw new ErroAplicacao('Tarefa não encontrada', 404);
 

@@ -1,8 +1,9 @@
 import { Tarefa, TarefaProps } from '../entidades/Tarefa';
-import { CriarTarefaDTO } from '../../aplicacao/dtos/TarefaDTO';
 import { ErroAplicacao } from '../erros/ErroAplicacao';
 import { STATUS_TAREFA_VALORES, StatusTarefa } from '../valores/StatusTarefa';
 import { PRIORIDADE_TAREFA_VALORES, PrioridadeTarefa } from '../valores/PrioridadeTarefa';
+import { CriarTarefaDTO } from '../../aplicacao/dtos/CriarTarefaDTO';
+import { AtualizarTarefaDTO } from '../../aplicacao/dtos/AtualizarTarefaDTO';
 
 export class TarefaFabrica {
   private static validar(dados: CriarTarefaDTO) {
@@ -25,6 +26,51 @@ export class TarefaFabrica {
     }
     if (dados.dataVencimento) {
       const d = new Date(dados.dataVencimento);
+      if (isNaN(d.getTime())) {
+        throw new ErroAplicacao('Data de vencimento inválida (usar ISO 8601)', 400);
+      }
+    }
+  }
+
+  // NOVO: validação específica para atualização (campos opcionais)
+  public static validarAtualizacao(dados: AtualizarTarefaDTO) {
+    if (!dados || typeof dados !== 'object') {
+      throw new ErroAplicacao('Payload inválido', 400);
+    }
+
+    const { titulo, descricao, status, prioridade, dataVencimento } = dados;
+
+    // Verifica se pelo menos um campo (além do id) foi enviado
+    if (
+      titulo === undefined &&
+      descricao === undefined &&
+      status === undefined &&
+      prioridade === undefined &&
+      dataVencimento === undefined
+    ) {
+      throw new ErroAplicacao('Nenhum campo para atualizar', 400);
+    }
+
+    if (titulo !== undefined) {
+      if (!titulo.trim()) throw new ErroAplicacao('Título não pode ser vazio', 400);
+      if (titulo.length > 120) throw new ErroAplicacao('Título excede 120 caracteres', 400);
+    }
+
+    if (descricao !== undefined && descricao.length > 1000) {
+      throw new ErroAplicacao('Descrição excede 1000 caracteres', 400);
+    }
+
+    if (status !== undefined && !STATUS_TAREFA_VALORES.includes(status)) {
+      throw new ErroAplicacao('Status inválido', 400);
+    }
+
+    if (prioridade !== undefined && !PRIORIDADE_TAREFA_VALORES.includes(prioridade)) {
+      throw new ErroAplicacao('Prioridade inválida', 400);
+    }
+
+    if (dataVencimento !== undefined) {
+      if (dataVencimento === null) return; // permitir nulificar
+      const d = new Date(dataVencimento);
       if (isNaN(d.getTime())) {
         throw new ErroAplicacao('Data de vencimento inválida (usar ISO 8601)', 400);
       }
