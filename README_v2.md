@@ -2,10 +2,6 @@
 
 Este projeto consiste em uma aplicação CRUD (Create, Read, Update, Delete) para gerenciamento de tarefas, desenvolvida para demonstrar a aplicação de conceitos de Programação Orientada a Objetos (POO), Arquitetura Hexagonal (Portas e Adaptadores) e boas práticas de desenvolvimento de software.
 
-<p align="center">
-  <img alt="Arquitetura Hexagonal" src="https://github.com/Joao-Augusto-Barros/AppTarefasPOO/blob/main/arquitetura.png?raw=true" width="600">
-</p>
-
 ## Índice
 
 - [Arquitetura do Sistema](#arquitetura-do-sistema)
@@ -197,8 +193,8 @@ Este método é o mais simples, pois gerencia o backend e o banco de dados MySQL
 
 1. **Clone o repositório**:
    ```bash
-   git clone https://github.com/Joao-Augusto-Barros/AppTarefasPOO.git
-   cd AppTarefasPOO
+   git clone https://github.com/Jhonzim/gerenciador-tarefas-hexagonal.git
+   cd "Pasta criada"
    ```
 
 2. **Suba os contêineres do Docker**:
@@ -260,6 +256,8 @@ Use esta opção se você já tem MySQL rodando na sua máquina.
    O backend estará rodando em http://localhost:5000
 
 #### Configurar e Rodar o Frontend
+
+**Importante**: Verificar se o backend está rodando na mesma porta especificada no arquivo [Api - Front End](./frontend/src/servicos/api.ts).
 
 1. Em outro terminal, navegue até a pasta do frontend:
    ```bash
