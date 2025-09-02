@@ -13,39 +13,6 @@ export interface TarefaControllers {
 	excluirTarefaController: ExcluirTarefaControlador;
 }
 
-/**
- * Esquemas esperados (garantir que estejam também em swaggerSpec.components.schemas):
- *
- * TarefaDTO:
- *  {
- *    id: number;
- *    titulo: string;
- *    descricao?: string;
- *    status: 'pendente' | 'em_andamento' | 'concluida';
- *    prioridade: 'baixa' | 'media' | 'alta';
- *    dataCriacao: string (ISO);
- *    dataAtualizacao: string (ISO);
- *    dataVencimento?: string | null (ISO);
- *  }
- *
- * CriarTarefaDTO (request):
- *  {
- *    titulo: string (required);
- *    descricao?: string;
- *    status?: 'pendente' | 'em_andamento' | 'concluida';
- *    prioridade?: 'baixa' | 'media' | 'alta';
- *    dataVencimento?: string (ISO date / datetime);
- *  }
- *
- * AtualizarTarefaDTO (request):
- *  {
- *    titulo?: string;
- *    descricao?: string;
- *    status?: 'pendente' | 'em_andamento' | 'concluida';
- *    prioridade?: 'baixa' | 'media' | 'alta';
- *    dataVencimento?: string | null;
- *  }
- */
 export function montarTarefaRotas(ctrls: TarefaControllers): Router {
 	const router = Router();
 

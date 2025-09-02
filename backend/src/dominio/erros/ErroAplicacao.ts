@@ -1,8 +1,3 @@
-/**
- * ErroAplicacao
- * Classe base para erros controlados da camada de domínio / aplicação.
- * Use para diferenciar falhas conhecidas de erros inesperados (500).
- */
 export class ErroAplicacao extends Error {
   status: number;
   detalhes?: unknown;
@@ -35,9 +30,6 @@ export class ErroAplicacao extends Error {
   }
 }
 
-/**
- * Type guard para identificar ErroAplicacao.
- */
 export function ehErroAplicacao(err: unknown): err is ErroAplicacao {
   return err instanceof ErroAplicacao;
 }

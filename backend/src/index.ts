@@ -23,9 +23,6 @@ app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 	customSiteTitle: 'Documentação API Tarefas'
 }));
 
-// Health
-app.get('/api/health', (_req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));
-
 // 404
 app.use((req, res, next) => {
 	if (req.path.startsWith('/api/')) return res.status(404).json({ mensagem: 'Rota não encontrada' });
@@ -33,7 +30,6 @@ app.use((req, res, next) => {
 });
 
 // Erros
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 	if (ehErroAplicacao(err)) return res.status(err.status).json({ mensagem: err.message, detalhes: err.detalhes });
 	console.error('[ERRO NÃO TRATADO]', err);

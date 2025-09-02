@@ -32,7 +32,6 @@ export class TarefaFabrica {
     }
   }
 
-  // NOVO: validação específica para atualização (campos opcionais)
   public static validarAtualizacao(dados: AtualizarTarefaDTO) {
     if (!dados || typeof dados !== 'object') {
       throw new ErroAplicacao('Payload inválido', 400);
@@ -40,7 +39,6 @@ export class TarefaFabrica {
 
     const { titulo, descricao, status, prioridade, dataVencimento } = dados;
 
-    // Verifica se pelo menos um campo (além do id) foi enviado
     if (
       titulo === undefined &&
       descricao === undefined &&
@@ -69,7 +67,7 @@ export class TarefaFabrica {
     }
 
     if (dataVencimento !== undefined) {
-      if (dataVencimento === null) return; // permitir nulificar
+      if (dataVencimento === null) return;
       const d = new Date(dataVencimento);
       if (isNaN(d.getTime())) {
         throw new ErroAplicacao('Data de vencimento inválida (usar ISO 8601)', 400);

@@ -4,7 +4,6 @@ export class CriarTarefaControlador {
   constructor(private service: CriarTarefaService) {}
 
   async handle(req: import('express').Request, res: import('express').Response) {
-    // Validação assumida existente
     try {
       const tarefa = await this.service.execute({
         titulo: req.body.titulo,
