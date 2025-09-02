@@ -257,7 +257,7 @@ Use esta opção se você já tem MySQL rodando na sua máquina.
 
 #### Configurar e Rodar o Frontend
 
-**Importante**: Verificar se o backend está rodando na mesma porta especificada no arquivo [Api - Front End](./frontend/src/servicos/api.ts).
+**Importante**: Verificar o backend está rodando na mesma porta especificada na variável se a variável `baseURL: 'http://localhost:5000/api'` no arquivo [src/servicos/api.ts - Front End](./frontend/src/servicos/api.ts).
 
 1. Em outro terminal, navegue até a pasta do frontend:
    ```bash
